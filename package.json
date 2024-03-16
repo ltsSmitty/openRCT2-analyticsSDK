@@ -19,6 +19,7 @@
     "start": "nodemon --watch ./src --ext js,ts --exec \"npm run build:dev\"",
     "build": "rollup --config rollup.config.js --environment BUILD:production",
     "build:dev": "rollup --config rollup.config.js",
+    "publish:local": "npm run build && npm install --global",
     "clean": "node --eval \"fs.rmSync('./dist', { recursive: true, force: true })\""
   },
   "devDependencies": {

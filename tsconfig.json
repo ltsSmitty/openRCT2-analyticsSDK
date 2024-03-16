@@ -12,11 +12,11 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "dist",
     "strict": true,
     "target": "ES5",
     "lib": ["es5"]
   },
   "include": ["./lib/**/*.ts", "./src/**/*.ts"],
+  "exclude": ["./dist/**/*"],
   "noEmit": true
 }

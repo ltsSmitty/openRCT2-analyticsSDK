@@ -1,4 +1,3 @@
-import resolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
@@ -27,7 +26,7 @@ const config = [
     input: "./src/index.ts",
     output: [
       {
-        dir: "dist",
+        dir: "./dist/esm",
         format: "esm",
         exports: "named",
         entryFileNames: "[name].mjs",
