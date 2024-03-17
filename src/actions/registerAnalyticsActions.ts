@@ -55,6 +55,11 @@ export const registerFlushAndSaveEventsAction = () => {
     (data) => {
       const trackedEvents = (data as { args: TrackEventType[] }).args;
       saveEventData(trackedEvents);
+      trackedEvents.forEach((event) => {
+        if (analytics.trackCallback) {
+          analytics.trackCallback(event);
+        }
+      });
       return { data } as GameActionResult;
     }
   );

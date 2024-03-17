@@ -20,6 +20,8 @@ type AnalyticsSDKParams = {
    * May impact performance if set too low.
    */
   flushThreshold?: number;
+  /** Optional callback to be called when an event is tracked. */
+  trackCallback?: (event: TrackEventType) => void;
 };
 
 const MAX_QUEUE_LENGTH = 1000;
@@ -29,8 +31,13 @@ class Analytics {
   private eventQueue: TrackEventType[] = [];
   private flushThreshold: number = 25;
   private pluginName: string = "openRCT2-analytics-sdk";
+  trackCallback?: (event: TrackEventType) => void;
 
   constructor(params: AnalyticsSDKParams) {
+    if (params.trackCallback) {
+      this.trackCallback = params.trackCallback;
+    }
+
     if (params.flushThreshold) {
       if (params.flushThreshold < 1) {
         throw new Error("Flush threshold must be greater than 0");
@@ -65,7 +72,7 @@ class Analytics {
     };
     // todo implement printDebug
     if (printDebug) {
-      console.log(eventData);
+      console.log("print debug", eventData);
     }
     // safely call the action to enqueue the event rather than calling it directly
     // this lets it be disabled or hooked into
@@ -111,6 +118,10 @@ class Analytics {
       );
       this.flush();
     }
+  }
+
+  setTrackCallback(callback: (event: TrackEventType) => void) {
+    this.trackCallback = callback;
   }
 }
 
