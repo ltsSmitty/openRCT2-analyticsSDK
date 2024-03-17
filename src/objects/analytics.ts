@@ -20,7 +20,7 @@ type AnalyticsSDKParams = {
    * May impact performance if set too low.
    */
   flushThreshold?: number;
-  /** Optional callback to be called when an event is tracked. */
+  /** Optional callback to be called when track() is called. */
   trackCallback?: (event: TrackEventType) => void;
 };
 
