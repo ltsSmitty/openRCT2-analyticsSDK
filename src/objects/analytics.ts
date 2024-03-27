@@ -74,29 +74,24 @@ class Analytics {
     this.flushThreshold = Math.ceil(Math.min(threshold, MAX_QUEUE_LENGTH));
   }
 
-  track<T extends TrackEventProps>(props: string | T, printDebug = false) {
+  track<T extends TrackEventProps>(props: string | T) {
     const metadata = getMetadata(this.pluginName);
     const event = typeof props === "string" ? { name: props } : props;
     const eventData = {
       ...metadata,
       properties: event,
     };
-    // todo implement printDebug
-    if (printDebug) {
-      console.log("print debug", eventData);
-    }
+
     // safely call the action to enqueue the event rather than calling it directly
     // this lets it be disabled or hooked into
     context.executeAction(config.analyticsEventEnqueueKey, eventData);
   }
 
   flush() {
-    console.log("Flushing events", this.eventQueue.length);
     context.executeAction(config.analyticsFlushAndSaveKey, this.eventQueue, (result) => {
       if (result.error) {
         console.log("Error flushing events", result.errorTitle, result.errorMessage);
       } else {
-        console.log("Flushed events", this.eventQueue.length);
         this.eventQueue = [];
       }
     });
@@ -109,12 +104,8 @@ class Analytics {
    * Use track() instead.
    */
   _enqueEvent(event: TrackEventType) {
-    console.log("Enqueing event", event.properties.name, this.eventQueue.length);
     this.eventQueue.push(event);
     if (this.eventQueue.length >= this.flushThreshold) {
-      console.log(
-        `Queue length ${this.eventQueue.length} exceeds threshold ${this.flushThreshold}, flushing`
-      );
       this.flush();
     }
   }
