@@ -38,7 +38,7 @@ type AnalyticsSDKParams = {
 
 const MAX_QUEUE_LENGTH = 1000;
 
-class Analytics {
+export class Analytics {
   private eventQueue: TrackEventType[] = [];
   private flushThreshold: number = 25;
   private pluginName: string = "openRCT2-analytics-sdk";
@@ -70,9 +70,13 @@ class Analytics {
     }
 
     try {
-      registerEventEnqueueAction();
-      registerFlushAndSaveEventsAction();
-      flushOnSaveOrQuit();
+      registerEventEnqueueAction(this._enqueEvent.bind(this));
+      registerFlushAndSaveEventsAction((event) => {
+        if (this.trackCallback) {
+          this.trackCallback(event);
+        }
+      });
+      flushOnSaveOrQuit(this);
     } catch (e) {
       console.log("Error registering actions. Did you call init() a second time?", e);
     }

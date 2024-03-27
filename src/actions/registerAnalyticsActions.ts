@@ -1,12 +1,8 @@
 import { config } from "../config";
 import { saveEventData } from "../io/saveData";
-import { TrackEventType, analytics } from "../objects/analytics";
+import { TrackEventType } from "../objects/analytics";
 
-export const registerEventEnqueueAction = () => {
-  console.log(
-    "Registering event enqueue action under the name",
-    config.analyticsEventEnqueueKey
-  );
+export const registerEventEnqueueAction = (callback: (eventData: TrackEventType) => void) => {
   context.registerAction(
     // The name of the action
     config.analyticsEventEnqueueKey,
@@ -25,17 +21,16 @@ export const registerEventEnqueueAction = () => {
     // The function to call on execute()
     (data) => {
       const eventData = (data as { args: TrackEventType }).args;
-      analytics._enqueEvent(eventData);
+      callback(eventData);
       return { data } as GameActionResult;
     }
   );
 };
 
-export const registerFlushAndSaveEventsAction = () => {
-  console.log(
-    "Registering event flushing/saving under the name",
-    config.analyticsFlushAndSaveKey
-  );
+export const registerFlushAndSaveEventsAction = (
+  callback: (eventData: TrackEventType) => void
+) => {
+  console.log("Registering event flushing/saving under the name", config.analyticsFlushAndSaveKey);
   context.registerAction(
     // The name of the action
     config.analyticsFlushAndSaveKey,
@@ -56,9 +51,7 @@ export const registerFlushAndSaveEventsAction = () => {
       const trackedEvents = (data as { args: TrackEventType[] }).args;
       saveEventData(trackedEvents);
       trackedEvents.forEach((event) => {
-        if (analytics.trackCallback) {
-          analytics.trackCallback(event);
-        }
+        callback(event);
       });
       return { data } as GameActionResult;
     }

@@ -1,9 +1,7 @@
-import { analytics } from "../objects/analytics";
+import { Analytics } from "../objects/analytics";
 
 // hooks into the loadorquit action
-const onLoadOrQuit = (
-  loadOrQuitCallback: (result: GameActionEventArgs) => void
-) => {
+const onLoadOrQuit = (loadOrQuitCallback: (result: GameActionEventArgs) => void) => {
   context.subscribe("action.execute", (data) => {
     if (data.action === "loadorquit") {
       loadOrQuitCallback(data);
@@ -12,11 +10,11 @@ const onLoadOrQuit = (
 };
 
 // callback which flushes analytics events on load or quit
-const loadOrQuitCallback = (_result: GameActionEventArgs) => {
-  analytics.track("Load or quit");
-  analytics.flush();
+const loadOrQuitCallback = (_result: GameActionEventArgs, analyticsInstance: Analytics) => {
+  analyticsInstance.track("Load or quit");
+  analyticsInstance.flush();
 };
 
-export const flushOnSaveOrQuit = () => {
-  onLoadOrQuit(loadOrQuitCallback);
+export const flushOnSaveOrQuit = (analyticsInstance: Analytics) => {
+  onLoadOrQuit((res) => loadOrQuitCallback(res, analyticsInstance));
 };
