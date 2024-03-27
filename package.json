@@ -19,8 +19,10 @@
     "start": "nodemon --watch ./src --ext js,ts --exec \"npm run build:dev\"",
     "build": "rollup --config rollup.config.js --environment BUILD:production",
     "build:dev": "rollup --config rollup.config.js",
+    "clean": "node --eval \"fs.rmSync('./dist', { recursive: true, force: true })\"",
     "publish:local": "npm run build && npm install --global",
-    "clean": "node --eval \"fs.rmSync('./dist', { recursive: true, force: true })\""
+    "version:prerelease": "npm version prerelease --preid=prerelease",
+    "publish:prerelease": "npm run build && release-it --prerelease=prerelease"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.0.1",
@@ -29,7 +31,24 @@
     "@types/uuid": "^9.0.8",
     "nodemon": "^2.0.22",
     "rollup": "^3.15.0",
-    "tslib": "^2.5.0",
-    "rollup-plugin-dts": "^6.1.0"
+    "rollup-plugin-dts": "^6.1.0",
+    "tslib": "^2.5.0"
+  },
+  "dependencies": {
+    "release-it": "^17.1.1"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "Release v${version}"
+    },
+    "github": {
+      "releaseName": "v${version}",
+      "release": true,
+      "preRelease": true,
+      "web": true
+    },
+    "npm": {
+      "tag": "next"
+    }
   }
 }

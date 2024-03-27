@@ -1,29 +1,24 @@
-# Simple OpenRCT2 plugin template with Typescript
+# OpenRCT2 Analytics SDK Plugin
 
-A simple and minimal template for OpenRCT2 plugins, using Typescript, without any unnecessary extra's.
+This is a plugin for OpenRCT2 that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.
 
-Also supports:
-- Automatic plugin reload in OpenRCT2 (hot reload);
-- Out of the box minification to improve file sizes;
-- Support for external NPM packages (like FlexUI).
+## Installation
 
-## How to start
+To add the Analytics SDK to your OpenRCT2 plugin, follow these steps:
 
-1. Install latest version of [Node](https://nodejs.org/en/) and make sure to include NPM and enable the "Add to PATH" option during installation.
-2. Use the green "Use this template" button in the top right corner of this page, or download the project to a location of your choice on your PC.
-3. Open a terminal or command prompt.
-4. Use `cd` to change your current directory to the root folder of this project.
-5. Run `npm install` to install the project's dependencies.
-6. Find `openrct2.d.ts` TypeScript API declaration file in OpenRCT2 files. copy it to `./lib/` folder.
-   - This file can usually be found in the [OpenRCT2 installation directory](#openrct2-installation-directory).
-   - Alternatively you can download the file from Github [here](https://raw.githubusercontent.com/OpenRCT2/OpenRCT2/develop/distribution/openrct2.d.ts).
-   - Another option is to make a symbolic link instead of copying the file, which will keep the file up to date whenever you install new versions of OpenRCT2.
-7. In `./src/plugin.ts`, change the name and author of the plugin to your liking.
-8. In `./rollup.config.js`, change the filename of the outputted plugin.
+1.  Install the latest version of [Node.js](https://nodejs.org/en/) and make sure to include NPM and enable the "Add to PATH" option during installation.
+2.  Clone or download this repository to a location of your choice on your computer.
+3.  Open a terminal or command prompt.
+4.  Use `cd` to change your current directory to the root folder of this project.
+5.  Run `npm install` to install the project's dependencies.
 
----
+## Usage
 
-## Commands
+1.
+
+## Building the Plugin
+
+To build the plugin, run the following command in the root folder of the project:
 
 The template comes with several terminal commands to make developing plugins easier.
 
@@ -53,7 +48,7 @@ When your plugin is not loading properly, it may be useful to be able to read th
 
 1. Navigate to the folder where [OpenRCT2 is installed](#openrct2-installation-directory).
 2. Launch the `openrct2.com` file located there (the MS-DOS application).
-	- If file extensions are hidden, make sure to [enable them](https://support.microsoft.com/en-us/windows/common-file-name-extensions-in-windows-da4a4430-8e76-89c5-59f7-1cdbbc75cb01).
+   - If file extensions are hidden, make sure to [enable them](https://support.microsoft.com/en-us/windows/common-file-name-extensions-in-windows-da4a4430-8e76-89c5-59f7-1cdbbc75cb01).
 
 ### MacOS
 
