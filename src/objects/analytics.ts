@@ -34,6 +34,10 @@ type AnalyticsSDKParams = {
    * Optional callback to be called when track() is called.
    */
   trackCallback?: (event: TrackEventType) => void;
+  /**
+   * To enable debug logging. Use to ensure events are being tracked/flushed correctly.
+   */
+  enableDebugLogging?: boolean;
 };
 
 const MAX_QUEUE_LENGTH = 1000;
@@ -42,6 +46,7 @@ export class Analytics {
   private eventQueue: TrackEventType[] = [];
   private flushThreshold: number = 25;
   private pluginName: string = "openRCT2-analytics-sdk";
+  private enableDebugLogging: boolean = false;
   trackCallback?: (event: TrackEventType) => void;
 
   constructor(params: AnalyticsSDKParams) {
@@ -54,19 +59,23 @@ export class Analytics {
     }
   }
 
-  init(props: {
-    pluginName: string;
-    eventCallback?: (event: TrackEventType) => void;
-    flushThreshold?: number;
-  }) {
+  init(
+    props: AnalyticsSDKParams & {
+      pluginName: string;
+    }
+  ) {
     this.pluginName = props.pluginName;
 
-    if (props.eventCallback) {
-      this.trackCallback = props.eventCallback;
+    if (props.trackCallback) {
+      this.trackCallback = props.trackCallback;
     }
 
     if (props.flushThreshold) {
       this.setFlushThreshold(props.flushThreshold);
+    }
+
+    if (props.enableDebugLogging) {
+      this.enableDebugLogging = true;
     }
 
     try {
@@ -92,6 +101,7 @@ export class Analytics {
       throw new Error("Flush threshold must be greater than 0");
     }
     this.flushThreshold = Math.ceil(Math.min(threshold, MAX_QUEUE_LENGTH));
+    this.log(`Flush threshold set to ${this.flushThreshold}`);
   }
 
   /**
@@ -115,10 +125,12 @@ export class Analytics {
    * Flushes the event queue.
    */
   flush() {
+    this.log(`Flushing ${this.eventQueue.length} events`);
     context.executeAction(config.analyticsFlushAndSaveKey, this.eventQueue, (result) => {
       if (result.error) {
         console.log("Error flushing events", result.errorTitle, result.errorMessage);
       } else {
+        this.log("Events flushed");
         this.eventQueue = [];
       }
     });
@@ -132,8 +144,13 @@ export class Analytics {
    * @param event - The event to enqueue.
    */
   _enqueEvent(event: TrackEventType) {
+    this.log("Enqueing event", event.properties.name, this.eventQueue.length);
+
     this.eventQueue.push(event);
     if (this.eventQueue.length >= this.flushThreshold) {
+      this.log(
+        `Queue length ${this.eventQueue.length} exceeds threshold ${this.flushThreshold}, flushing`
+      );
       this.flush();
     }
   }
@@ -144,6 +161,12 @@ export class Analytics {
    */
   setTrackCallback(callback: (event: TrackEventType) => void) {
     this.trackCallback = callback;
+  }
+
+  log(...message: any) {
+    if (this.enableDebugLogging) {
+      console.log(message);
+    }
   }
 }
 
