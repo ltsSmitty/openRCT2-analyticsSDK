@@ -31,6 +31,7 @@ class Analytics {
   private eventQueue: TrackEventType[] = [];
   private flushThreshold: number = 25;
   private pluginName: string = "openRCT2-analytics-sdk";
+  private customNamespace?: string;
   trackCallback?: (event: TrackEventType) => void;
 
   constructor(params: AnalyticsSDKParams) {
@@ -39,28 +40,44 @@ class Analytics {
     }
 
     if (params.flushThreshold) {
-      if (params.flushThreshold < 1) {
-        throw new Error("Flush threshold must be greater than 0");
-      }
-      this.flushThreshold = Math.ceil(
-        Math.min(params.flushThreshold, MAX_QUEUE_LENGTH)
-      );
+      this.setFlushThreshold(params.flushThreshold);
     }
   }
 
-  init(props: { pluginName: string }) {
+  init(props: {
+    pluginName: string;
+    eventCallback?: (event: TrackEventType) => void;
+    flushThreshold?: number;
+    customNamespace?: string;
+  }) {
     this.pluginName = props.pluginName;
+
+    if (props.eventCallback) {
+      this.trackCallback = props.eventCallback;
+    }
+
+    if (props.customNamespace) {
+      this.customNamespace = props.customNamespace;
+    }
+
+    if (props.flushThreshold) {
+      this.setFlushThreshold(props.flushThreshold);
+    }
 
     try {
       registerEventEnqueueAction();
       registerFlushAndSaveEventsAction();
       flushOnSaveOrQuit();
     } catch (e) {
-      console.log(
-        "Error registering actions. Did you call init() a second time?",
-        e
-      );
+      console.log("Error registering actions. Did you call init() a second time?", e);
     }
+  }
+
+  setFlushThreshold(threshold: number) {
+    if (threshold < 1) {
+      throw new Error("Flush threshold must be greater than 0");
+    }
+    this.flushThreshold = Math.ceil(Math.min(threshold, MAX_QUEUE_LENGTH));
   }
 
   track<T extends TrackEventProps>(props: string | T, printDebug = false) {
@@ -81,22 +98,14 @@ class Analytics {
 
   flush() {
     console.log("Flushing events", this.eventQueue.length);
-    context.executeAction(
-      config.analyticsFlushAndSaveKey,
-      this.eventQueue,
-      (result) => {
-        if (result.error) {
-          console.log(
-            "Error flushing events",
-            result.errorTitle,
-            result.errorMessage
-          );
-        } else {
-          console.log("Flushed events", this.eventQueue.length);
-          this.eventQueue = [];
-        }
+    context.executeAction(config.analyticsFlushAndSaveKey, this.eventQueue, (result) => {
+      if (result.error) {
+        console.log("Error flushing events", result.errorTitle, result.errorMessage);
+      } else {
+        console.log("Flushed events", this.eventQueue.length);
+        this.eventQueue = [];
       }
-    );
+    });
   }
 
   /**
@@ -106,11 +115,7 @@ class Analytics {
    * Use track() instead.
    */
   _enqueEvent(event: TrackEventType) {
-    console.log(
-      "Enqueing event",
-      event.properties.name,
-      this.eventQueue.length
-    );
+    console.log("Enqueing event", event.properties.name, this.eventQueue.length);
     this.eventQueue.push(event);
     if (this.eventQueue.length >= this.flushThreshold) {
       console.log(
