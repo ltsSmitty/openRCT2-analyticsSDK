@@ -31,7 +31,6 @@ class Analytics {
   private eventQueue: TrackEventType[] = [];
   private flushThreshold: number = 25;
   private pluginName: string = "openRCT2-analytics-sdk";
-  private customNamespace?: string;
   trackCallback?: (event: TrackEventType) => void;
 
   constructor(params: AnalyticsSDKParams) {
@@ -48,16 +47,11 @@ class Analytics {
     pluginName: string;
     eventCallback?: (event: TrackEventType) => void;
     flushThreshold?: number;
-    customNamespace?: string;
   }) {
     this.pluginName = props.pluginName;
 
     if (props.eventCallback) {
       this.trackCallback = props.eventCallback;
-    }
-
-    if (props.customNamespace) {
-      this.customNamespace = props.customNamespace;
     }
 
     if (props.flushThreshold) {

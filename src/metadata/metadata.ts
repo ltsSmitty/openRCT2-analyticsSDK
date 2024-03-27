@@ -1,3 +1,4 @@
+import { getParkId } from "src/io/getParkId";
 import { config } from "../config";
 import { generateUID } from "../utilities/generateUID";
 
@@ -5,6 +6,7 @@ function getMetadata(pluginName: string) {
   return {
     context: {
       park: {
+        id: getParkId(),
         scenario: {
           fileName: scenario.filename,
           scenarioName: scenario.name,
