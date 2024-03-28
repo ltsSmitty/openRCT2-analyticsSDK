@@ -20,7 +20,7 @@ You may be interested in how users play the game or have a gameplay hypothesis t
 - 📵 All data is stored locally and this tool has no network connection.
 - 💡 The tracking model was inspired by [Segment's analytics.js](https://github.com/segmentio/analytics-next/blob/master/packages/browser/README.md) library.
 
-If you want to implement analytics tracking into your own project, keep reading. If you just want to access saved tracking data, skip on to [accessing analytics data](#-accessing-analytics-data).
+If you want to implement analytics tracking into your own project, keep reading. If you just want to access saved tracking data, skip on to [accessing analytics data](#accessing-analytics-data).
 
 ## Installing from `npm`
     
