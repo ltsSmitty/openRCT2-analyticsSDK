@@ -170,4 +170,4 @@ export class Analytics {
   }
 }
 
-export const analytics = new Analytics({ flushThreshold: 100 });
+export const analytics = new Analytics({});
