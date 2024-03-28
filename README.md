@@ -115,7 +115,7 @@ const keys = Object.keys(loadedData);
  */
 ```
 
-See [event metadata](#-metadata) for documentation of `TrackEventType` structure.
+See [event metadata](#metadata) for documentation of `TrackEventType` structure.
 
 ## Realtime Usage
 
