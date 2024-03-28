@@ -28,7 +28,7 @@ Install the package from npm.
     
 ```sh
 # npm
-npm i openrct2-analytics-sdk 
+npm i openrct2-analytics-sdk@next
 ```
     
 Import the packing into your plugin project and initialize in your startup function:
