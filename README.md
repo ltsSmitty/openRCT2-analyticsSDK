@@ -1,104 +1,237 @@
-# OpenRCT2 Analytics SDK Plugin
+# OpenRCT2 Analytics SDK
 
-This is a plugin for OpenRCT2 that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.
+This is a tool for OpenRCT2 plugins that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.This is a plugin for OpenRCT2 that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.This is a plugin for OpenRCT2 that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.
 
-## Installation
+### Table of Contents
+- [Adding analytics to your plugin](#adding-analytics-to-your-plugin)
+    - [Installing from npm](#installing-from-npm)
+    - [Tracking your events](#tracking-your-events)
+    - [Flushing to storage](#flushing-to-storage)
+- [Accessing analytics data](#accessing-analytics-data)
+    - [Realtime usage](#realtime-usage)
+- [Metadata](#metadata)
+- [Recommendations](#recommendations)
 
-To add the Analytics SDK to your OpenRCT2 plugin, follow these steps:
+# Adding analytics to your plugin
 
-1.  Install the latest version of [Node.js](https://nodejs.org/en/) and make sure to include NPM and enable the "Add to PATH" option during installation.
-2.  Clone or download this repository to a location of your choice on your computer.
-3.  Open a terminal or command prompt.
-4.  Use `cd` to change your current directory to the root folder of this project.
-5.  Run `npm install` to install the project's dependencies.
+There are a lot of great reasons to add analytics to your plugin. Here are some of them. Lorem ipsem. Lorem ipsem.Lorem ipsem.Lorem ipsem.Lorem ipsem. It's easy!
 
-## Usage
+If you want to implement analytics tracking into your own project, keep reading. If you just want to access saved tracking data, skip on to [accessing analytics data](#-accessing-analytics-data).
 
-1.
+## Installing from `npm`
+    
+Install the package from npm.
+    
+```sh
+# npm
+npm i openrct2-analytics-sdk 
+```
+    
+Import the packing into your plugin project and initialize in your startup function:
+```ts
+import { analytics } from "openrct2-analytics-sdk";
 
-## Building the Plugin
+export function startup() {
+    analytics.init({
+        pluginName: "your-plugin-name",
+    });
+    
+    // initialize window, UI, etc.
+    ...
+}
+```
 
-To build the plugin, run the following command in the root folder of the project:
+## Tracking Your Events
 
-The template comes with several terminal commands to make developing plugins easier.
+The core tracking function is `analytics.track`. The track() call can take an event name, or an object with a name and anything else you may want stored that's specific to this event.
 
-`npm run build`
+```ts
+context.subscribe("action.execute", (args) => {
+  if (args.action === "loadorquit") {
+    // if there are no relevant additional properties
+    analytics.track("Game loaded or quit");
+  } else if (args.action === "bannersetcolour") {
+    // Add any/all of the args values
+    analytics.track({
+      name: "Banner colour set",
+      properties: args,
+    });
+  }
+});
+```
+You can use track calls directly in your UI event listeners. (This example component uses @Basssiiie's [FlexUI library](https://github.com/Basssiiie/OpenRCT2-FlexUI/tree/main)  for state management and UI.)
+```ts
+import { analytics } from "openrct2-analytics-sdk";
+import { vertical, label, dropdown } from "openrct2-flexui";
 
-Creates a release build of your plugin. This version is optimized for sharing with others, using Terser to make the file as small as possible. By default, the plugin will be outputted to `./dist/`.
+const foodChoices = ["Tacos", "Burgers", "Cotton Candy", "Popcorn"];
+    
+// returns a FlexUI component
+export const favoriteFoodSelector = () => {
+  return vertical({
+    content: [
+        label({
+            text:"Select your favorite food."
+        }),
+        dropdown({
+            items: foodChoices,
+            onChange: (index) => {
+              analytics.track({
+                name: `Favorite food changed`,
+                favoriteFood: foodChoices[index],
+              });
+            },
+        }),
+    ],
+  })
+}
+```
 
-`npm run build:dev`
+Besides the data you specify to track in the event, the plugin also adds contextual metadata to every event. See more in [metadata](#-metadata).
 
-Creates a develop build of your plugin. This version is not optimized for sharing, but easier to read in case you want to see the outputted Javascript. By default, the plugin will be outputted in the plugin folder of the default [OpenRCT2 user directory](#openrct2-user-directory).
+## Flushing to storage
 
-`npm start` or `npm run start`
+When calling `analytics.track`, the events are stored in memory up to a chosen threshold (the default value is 25 events). When this threshold is passed or the game fires `loadorquit`, the events will be processed and saved into shared storage using `analytics.flush()`. `flush()` is automatically called on `loadorquit`, which is adequate for normal gameplay; but some events may be dropped during development if hot reloading is enabled. Lowering the threshold may negatively impact performance.
 
-Will start a script that will automatically run `npm run build:dev` every time you make a change to any Typescript or Javascript file inside the `./src/` folder.
+If you need different flushing behaviour, you have options:
+* When initializing analytics with `analytics.init`, set the optional `flushThreshold` to a numerical value between 1 and 1000.
+* Use `analytics.setFlushThreshold(n:number)`
+* Call `analytics.flush()` at any point.
 
-### Output paths
+## Accessing analytics data
 
-These output paths can be changed in `rollup.config.js`. In this file you can also change the outputted filename of the plugin.
+Analytics data is saved in OpenRCT2's shared storage under the key `"analytics.data.storage"` as a object with event names as keys, and arrays of events as values. This key can also be accessed by reference with the exported `dataSaveKey`.
 
----
+```ts  
+import { dataSaveKey } from "openrct2-analytics-sdk";
 
-## Access game logs
+// load whichever way you prefer
+const loadedData = context.sharedStorage.get(dataSaveKey, []);
+const sameLoadedData = context.sharedStorage.get("analytics.data.storage", []);
+const keys = Object.keys(loadedData);
+/**
+ * keys: ["Game loaded or quit", "Banner colour set", "Favorite food changed", ...]
+ * loadedData["Banner colour set"]: TrackEventType[]
+ */
+```
 
-When your plugin is not loading properly, it may be useful to be able to read the logs of the game to see if there are any errors. Furthermore, if you use the `console.log` function, the resulting logs can be read here as well.
+See [event metadata](#-metadata) for documentation of `TrackEventType` structure.
 
-### Windows
+## Realtime Usage
 
-1. Navigate to the folder where [OpenRCT2 is installed](#openrct2-installation-directory).
-2. Launch the `openrct2.com` file located there (the MS-DOS application).
-   - If file extensions are hidden, make sure to [enable them](https://support.microsoft.com/en-us/windows/common-file-name-extensions-in-windows-da4a4430-8e76-89c5-59f7-1cdbbc75cb01).
+To use analytics data in real time in your plugin, `analytics.init` takes an optional `eventCallback` property which can be connected to your plugin's state. This callback is called for each event whenever events are flushed to storage. Here's an example for connecting an event view  component using FlexUI's ArrayStore.
 
-### MacOS
+```ts
+// startup.ts
+import { TrackEventType, analytics } from "openrct2-analytics-sdk";
+import { arrayStore } from "openrct2-flexui";
 
-1. Launch a terminal or another command-line prompt.
-2. Using the `cd` command, navigate to the folder where [OpenRCT2 is installed](#openrct2-installation-directory).
-3. Run `open OpenRCT2.app/Contents/MacOS/OpenRCT2` to launch OpenRCT2 with logging enabled.
+export const eventDebugger = arrayStore<TrackEventType>([])
 
----
+export function startup() {
+    analytics.init({
+            pluginName: "your-plugin-name",
+            eventCallback:(eventData) => {
+                eventDebugger.push(eventData)
+            }
+        });
+        // other startup details
+        ...
+}
+```
+```ts
+// eventView.ts
+import { compute, groupbox, horizontal, label } from "openrct2-flexui";
+import { eventDebugger } from "../../startup";
 
-## Hot reload
+export const eventView = (index: number) => {
+  return groupbox({
+    content: [
+      horizontal({
+        content: [
+          label({
+            text: compute(eventDebugger.store, (eventArray) => {
+              if (eventArray[index] === undefined) {
+                return "No Event";
+              }
+              return eventArray[index]?.properties.name || "No Event";
+            }),
+          }),
+          label({
+            text: compute(eventDebugger.store, (eventArray) => {
+              if (eventArray[index] === undefined) {
+                return "";
+              }
+              const date = new Date(eventArray[index]?.timestamp || "");
+              return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            }),
+          }),
+        ],
+      }),
+    ],
+  });
+};
+```
 
-This project supports the [OpenRCT2 hot reload feature](https://github.com/OpenRCT2/OpenRCT2/blob/master/distribution/scripting.md#writing-scripts) for development.
+INSERT SCREENSHOT HERE
 
-1. Navigate to your [OpenRCT2 user directory](#openrct2-user-directory) and open the `config.ini` file.
-2. Enable hot reload by setting `enable_hot_reloading = true` in `config.ini`.
-3. Run `npm start` in the directory of this project to start the hot reload server.
-4. Start the OpenRCT2 and load a save or start a new game.
-5. Each time you save any of the files in `./src/`, the server will compile `./src/registerPlugin.ts` and place compiled plugin file inside your local OpenRCT2 plugin directory.
-6. OpenRCT2 will notice file changes and it will reload the plugin.
+### Metadata
 
----
+Each event is enriched with a set of metadata that can be used for further analysis. 
 
-## Folders
+```ts
+type TrackEventType = {
+  // The data you add input to `track()`
+  properties: {
+    name: string;
+    [...your-additonal-props]: any;
+  }
+  // automatically added event metadata
+  context: {
+        park: {
+            id: number; // unique identifier for a specific save file
+            scenario: {
+                fileName: string;
+                scenarioName: string;
+                name: string;
+            };
+            inGameDate: {
+                year: number;
+                month: number;
+                day: number;
+                ticksElapsed: number;
+                monthProgress: number;
+            };
+        };
+        library: {
+            pluginVersion: string,
+            apiVersion: number,
+            eventPluginSource: string, // your plugin name from analytics.init()
+        };
+        network: {
+            networkMode: NetworkMode
+        };
+        mode: GameMode;
+    };
+    messageID: number; // semi-unique identifier for the event
+    timestamp: string; // Datetime as ISO string
+}}
 
-### OpenRCT2 installation directory
+```
 
-This is the directory where the game is installed.
+## Recommendations
+* **Adopt standard event naming methodology.**
+    *   I recommend a past tense, noun verb pattern like "Ride painted" or "Map purchased". [Read more here](https://segment.com/docs/protocols/tracking-plan/best-practices/#formalize-your-naming-and-collection-standards).
+* **Avoid dynamically generating event names**. 
+    *   Don't use string templates for event names. Avoid patterns like `analytics.track("Property "+ props.name + " changed."`)
+* **Debug Logging**
+    * If you're in development, you can initialize analytics with the optional `enableDebugLogging` to view a log of events being tracked and flushed.
 
-- **Windows:** usually `C:/Users/<YOUR NAME>/Documents/OpenRCT2/bin/` when using the launcher or `C:/Program Files/OpenRCT2/` when an installer was used.
-- **MacOS:** the folder where the `OpenRCT2.app` application file was placed.
-- **Linux:** depends on the distro, but likely either `/usr/share/openrct2` when installed through a package manager, or mounted in `/tmp` when using an AppImage.
+## Development
 
-### OpenRCT2 user directory
+Questions or want to contribute? Great! This project is responsive to Github PRs and issues. For quick support, consider posting in `#plugin` in the [OpenRCT2 Discord](https://discord.com/channels/264137540670324737/696130778618396683)
 
-This is the directory where the game stores user data, like save games and plugins.
+## License
 
-- **Windows:** usually `Documents/OpenRCT2/` or `C:/Users/<YOUR NAME>/Documents/OpenRCT2/`.
-- **MacOS:** usually `/Users/<YOUR NAME>/Library/Application Support/OpenRCT2/`. Note that `Library` is a hidden folder in your user directory, so by default it will not show up in Finder.
-- **Linux:** usually `/home/<YOUR NAME>/.config`, `$HOME/.config`, or where the environment variable `$XDG_CONFIG_HOME` points to if it's set.
+MIT
 
-You can also open this folder from inside OpenRCT2, by selecting "Open custom content folder" in the dropdown under the red toolbox in the main menu.
-
----
-
-## Dependencies
-
-The following libraries and tools are used in this template:
-
-- **NodeJS** is the JavaScript engine used to develop and run code when the game is not running.
-- **NPM** is a library and package manager for JavasScript and TypeScript and can be used to install new packages and update existing packages in the project.
-- **TypeScript** is a expansion language to JavaScript that adds type checking when you are writing the code. It allows you to specify rules for how objects and values look like, so TypeScript can report back if your code follows these rules (instead of crashes or errors in-game).
-- **Rollup** bundles all source code, runs it through some plugins like TypeScript, and then outputs a single JavaScript plugin file.
-- **Nodemon** is the program that can watch a folder for changes and then trigger a specified action. It is used by `npm start` to watch the `./src/` folder and triggers `npm run build:dev` if any changes occur.
