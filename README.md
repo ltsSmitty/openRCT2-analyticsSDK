@@ -1,6 +1,6 @@
 # OpenRCT2 Analytics SDK
 
-This is a tool for OpenRCT2 plugins that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.This is a plugin for OpenRCT2 that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.This is a plugin for OpenRCT2 that provides analytics functionality. It allows you to track various events and metrics in your OpenRCT2 game.
+This is a tool for OpenRCT2 plugins that provides analytics functionality for tracking player actions. It enables visualization of user behaviour that can be sliced and diced in many ways to interesting effect. 
 
 ### Table of Contents
 - [Adding analytics to your plugin](#adding-analytics-to-your-plugin)
@@ -14,7 +14,11 @@ This is a tool for OpenRCT2 plugins that provides analytics functionality. It al
 
 # Adding analytics to your plugin
 
-There are a lot of great reasons to add analytics to your plugin. Here are some of them. Lorem ipsem. Lorem ipsem.Lorem ipsem.Lorem ipsem.Lorem ipsem. It's easy!
+You may be interested in how users play the game or have a gameplay hypothesis that needs data to prove. This tool makes behaviour tracking easy. 
+
+- 🔧 Implement it in your own projects to track custom user actions, or reference the saved event data for building displays or training ML models.
+- 📵 All data is stored locally and this tool has no network connection.
+- 💡 The tracking model was inspired by [Segment's analytics.js](https://github.com/segmentio/analytics-next/blob/master/packages/browser/README.md) library.
 
 If you want to implement analytics tracking into your own project, keep reading. If you just want to access saved tracking data, skip on to [accessing analytics data](#-accessing-analytics-data).
 
@@ -91,7 +95,7 @@ Besides the data you specify to track in the event, the plugin also adds context
 
 ## Flushing to storage
 
-When calling `analytics.track`, the events are stored in memory up to a chosen threshold (the default value is 25 events). When this threshold is passed or the game fires `loadorquit`, the events will be processed and saved into shared storage using `analytics.flush()`. `flush()` is automatically called on `loadorquit`, which is adequate for normal gameplay; but some events may be dropped during development if hot reloading is enabled. Lowering the threshold may negatively impact performance.
+When calling `analytics.track`, the events are stored in memory up to a chosen threshold (the default value is 25 events). When this threshold is passed or the game fires `loadorquit`, the events will be processed and saved into shared storage using `analytics.flush()`. `flush()` is automatically called on `loadorquit`, which is adequate for normal gameplay; but some events may be dropped during development if hot reloading is enabled. Setting the threshold to `1` will flush after every event is triggered, but it may negatively impact performance.
 
 If you need different flushing behaviour, you have options:
 * When initializing analytics with `analytics.init`, set the optional `flushThreshold` to a numerical value between 1 and 1000.
@@ -174,17 +178,16 @@ export const eventView = (index: number) => {
 ```
 Here's what this debugger could look like in action: 
 
-
-<img width="585" alt="Screenshot 2024-03-28 at 8 37 14 AM" src="https://github.com/ltsSmitty/openRCT2-analyticsSDK/assets/12832906/341c26c8-8931-41e9-9034-c07fd5aff3d4">
+![MOV to GIF conversion (1)](https://github.com/ltsSmitty/openRCT2-analyticsSDK/assets/12832906/1a3ac75b-2574-44cc-ac9e-27389e73cefd)
 
 
 ### Metadata
 
-Each event is enriched with a set of metadata that can be used for further analysis. 
+Each event is enriched with additional metadata that can be used for further analysis. 
 
 ```ts
 type TrackEventType = {
-  // The data you add input to `track()`
+  // Your data inputted to `track()`
   properties: {
     name: string;
     [...your-additonal-props]?: any;
