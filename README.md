@@ -172,8 +172,11 @@ export const eventView = (index: number) => {
   });
 };
 ```
+Here's what this debugger could look like in action: 
 
-INSERT SCREENSHOT HERE
+
+<img width="585" alt="Screenshot 2024-03-28 at 8 37 14 AM" src="https://github.com/ltsSmitty/openRCT2-analyticsSDK/assets/12832906/341c26c8-8931-41e9-9034-c07fd5aff3d4">
+
 
 ### Metadata
 
@@ -184,7 +187,7 @@ type TrackEventType = {
   // The data you add input to `track()`
   properties: {
     name: string;
-    [...your-additonal-props]: any;
+    [...your-additonal-props]?: any;
   }
   // automatically added event metadata
   context: {
@@ -215,7 +218,7 @@ type TrackEventType = {
     };
     messageID: number; // semi-unique identifier for the event
     timestamp: string; // Datetime as ISO string
-}}
+}
 
 ```
 
